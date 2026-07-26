@@ -44,8 +44,9 @@ public class UserService {
                 request.getLastName()
         );
 
-        User saved = userRepository.save(user);
+        User saved = userRepository.saveAndFlush(user);
         return toResponse(saved);
+
     }
 
     public UserResponse login(LoginRequest request) {
