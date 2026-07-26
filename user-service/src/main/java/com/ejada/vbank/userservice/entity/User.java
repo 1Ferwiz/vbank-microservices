@@ -1,6 +1,10 @@
 package com.ejada.vbank.userservice.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -9,6 +13,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id
@@ -18,15 +24,19 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @Setter
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Setter
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Setter
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
+    @Setter
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
@@ -38,10 +48,6 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    protected User() {
-        // required by JPA - never called directly by our own code
-    }
-
     public User(String username, String email, String passwordHash, String firstName, String lastName) {
         this.username = username;
         this.email = email;
@@ -49,17 +55,4 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
     }
-
-    public UUID getId() { return id; }
-    public String getUsername() { return username; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
