@@ -1,8 +1,6 @@
 package com.ejada.vbank.userservice.service;
 
-import com.ejada.vbank.userservice.dto.LoginRequest;
-import com.ejada.vbank.userservice.dto.RegisterRequest;
-import com.ejada.vbank.userservice.dto.UserResponse;
+import com.ejada.vbank.userservice.dto.*;
 import com.ejada.vbank.userservice.entity.User;
 import com.ejada.vbank.userservice.exception.DuplicateResourceException;
 import com.ejada.vbank.userservice.exception.InvalidCredentialsException;
@@ -26,12 +24,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new DuplicateResourceException("Username already taken: " + request.getUsername());
-        }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Email already registered: " + request.getEmail());
+    public RegisterResponse register(RegisterRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())
+                || userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateResourceException("Username or email already exists.");
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -45,35 +41,27 @@ public class UserService {
         );
 
         User saved = userRepository.saveAndFlush(user);
-        return toResponse(saved);
-
+        return new RegisterResponse(saved.getId(), saved.getUsername(), "User registered successfully.");
     }
 
-    public UserResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password."));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new InvalidCredentialsException("Invalid username or password");
+            throw new InvalidCredentialsException("Invalid username or password.");
         }
 
-        return toResponse(user);
+        return new LoginResponse(user.getId(), user.getUsername());
     }
 
-    public UserResponse getById(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
-        return toResponse(user);
-    }
-
-    private UserResponse toResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getCreatedAt()
+    public UserProfileResponse getProfile(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with ID " + userId + " not found."));
+        return new UserProfileResponse(
+                user.getId(), user.getUsername(), user.getEmail(),
+                user.getFirstName(), user.getLastName()
         );
     }
 }
