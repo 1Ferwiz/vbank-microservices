@@ -133,12 +133,120 @@ com.ejada.vbank.<servicename>
 - **`ddl-auto: update` only ever adds columns, never removes them.** If you rename or delete a field, manually drop the orphaned column afterward via the IntelliJ Database tool — don't let dead columns accumulate.
 - **Important:** since Hibernate generates `INSERT`s lazily inside a transaction, reading a `@CreationTimestamp` field immediately after `save()` can return `null`. Use `saveAndFlush()` instead of `save()` whenever you need the generated value (id, timestamps) right away in the same method.
 
+## Database Schema (Reference)
+
+Since schema is generated from entities (`ddl-auto: update`), the entity is always the final source of truth — but here's the agreed plan every entity should follow, so we all start from the same page.
+
+### `users_db.users` — ✅ implemented
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | UUID | PK, generated |
+| username | VARCHAR(50) | NOT NULL, UNIQUE |
+| email | VARCHAR(255) | NOT NULL, UNIQUE |
+| password_hash | VARCHAR(255) | NOT NULL |
+| first_name | VARCHAR(100) | NOT NULL |
+| last_name | VARCHAR(100) | NOT NULL |
+| created_at | TIMESTAMP | NOT NULL |
+| updated_at | TIMESTAMP | NOT NULL |
+
+### `accounts_db.accounts` — suggested, not yet built
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | UUID | PK, generated |
+| user_id | UUID | NOT NULL — cross-service reference to `users.id`, **no physical FK** (different database) |
+| account_number | VARCHAR(20) | NOT NULL, UNIQUE |
+| account_type | VARCHAR(20) | NOT NULL — `SAVINGS` / `CHECKING` today; `SYSTEM` reserved for the optional interest job if we get to it |
+| balance | NUMERIC(19,4) | NOT NULL, DEFAULT 0 — never `float`/`double` for money |
+| status | VARCHAR(20) | NOT NULL, DEFAULT `ACTIVE` — `ACTIVE` / `INACTIVE` |
+| last_activity_at | TIMESTAMP | NOT NULL — updated on every transaction; the hourly job reads this to flag idle (>24h) accounts as `INACTIVE` |
+| created_at | TIMESTAMP | NOT NULL |
+| updated_at | TIMESTAMP | NOT NULL |
+
+### `transactions_db.transactions` — suggested, not yet built
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | UUID | PK, generated |
+| from_account_id | UUID | NOT NULL — cross-service reference, no physical FK |
+| to_account_id | UUID | NOT NULL — cross-service reference, no physical FK |
+| amount | NUMERIC(19,4) | NOT NULL |
+| description | VARCHAR(255) | nullable |
+| status | VARCHAR(20) | NOT NULL, DEFAULT `INITIATED` — `INITIATED` / `SUCCESS` / `FAILED` |
+| created_at | TIMESTAMP | NOT NULL |
+| updated_at | TIMESTAMP | NOT NULL — changes when status flips |
+
+### `logs_db.log_dump` — suggested, not yet built
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | BIGSERIAL | PK — plain sequence is fine here, no UUID needed for internal logs |
+| message | TEXT | NOT NULL — the escaped JSON request/response body |
+| message_type | VARCHAR(20) | NOT NULL — `Request` / `Response` |
+| event_time | TIMESTAMP | NOT NULL — the `dateTime` from the Kafka message |
+| received_at | TIMESTAMP | NOT NULL, DEFAULT now() — when the consumer actually persisted it (lets us spot Kafka lag) |
+
 ## Lombok Usage
 
 Used consistently across entities and DTOs to cut boilerplate:
 - **Entities:** `@Getter` + selective `@Setter` only on fields that should be mutable (never blanket `@Data` — some fields like `id`/`createdAt` are intentionally immutable after creation). Keep any custom constructor that enforces a business rule (e.g. "only these 5 fields can be set at creation") hand-written — don't let `@AllArgsConstructor` undo that protection.
 - **Request DTOs:** `@Getter @Setter` on everything.
 - **Response DTOs:** `@Getter @AllArgsConstructor`, no setters — responses are immutable once built.
+
+## Database Schema (per service)
+
+Each table below is generated automatically by Hibernate from its entity (`ddl-auto: update`) — this is the **plan**, not something to hand-write in SQL. `users` is already implemented exactly as shown. The other three are suggestions for whoever builds that service — adjust if the real requirements need it, but keep the naming/type conventions above.
+
+### `users_db.users` — ✅ implemented
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | UUID | PK |
+| username | VARCHAR(50) | NOT NULL, UNIQUE |
+| email | VARCHAR(255) | NOT NULL, UNIQUE |
+| password_hash | VARCHAR(255) | NOT NULL |
+| first_name | VARCHAR(100) | NOT NULL |
+| last_name | VARCHAR(100) | NOT NULL |
+| created_at | TIMESTAMP | NOT NULL |
+| updated_at | TIMESTAMP | NOT NULL |
+
+### `accounts_db.accounts` — suggested
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | UUID | PK |
+| user_id | UUID | NOT NULL — references `users.id`, no physical FK (different database) |
+| account_number | VARCHAR(20) | NOT NULL, UNIQUE |
+| account_type | VARCHAR(20) | NOT NULL — `SAVINGS` / `CHECKING` (leave room for `SYSTEM` later if the interest job gets added) |
+| balance | NUMERIC(19,4) | NOT NULL, DEFAULT 0 — never float/double for money |
+| status | VARCHAR(20) | NOT NULL, DEFAULT `ACTIVE` — `ACTIVE` / `INACTIVE` |
+| last_activity_at | TIMESTAMP | NOT NULL — updated on every transaction touching this account; the hourly job checks this to mark accounts inactive after 24h idle |
+| created_at | TIMESTAMP | NOT NULL |
+| updated_at | TIMESTAMP | NOT NULL |
+
+### `transactions_db.transactions` — suggested
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | UUID | PK |
+| from_account_id | UUID | NOT NULL |
+| to_account_id | UUID | NOT NULL |
+| amount | NUMERIC(19,4) | NOT NULL |
+| description | VARCHAR(255) | nullable |
+| status | VARCHAR(20) | NOT NULL, DEFAULT `INITIATED` — `INITIATED` / `SUCCESS` / `FAILED` |
+| created_at | TIMESTAMP | NOT NULL |
+| updated_at | TIMESTAMP | NOT NULL — changes when status flips |
+
+### `logs_db.log_dump` — suggested
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | BIGSERIAL | PK — plain sequence is fine here, no need for UUID on internal logs |
+| message | TEXT | NOT NULL — the escaped JSON request/response body from Kafka |
+| message_type | VARCHAR(20) | NOT NULL — `Request` / `Response` |
+| event_time | TIMESTAMP | NOT NULL — the `dateTime` from the Kafka message itself |
+| received_at | TIMESTAMP | NOT NULL, DEFAULT now() — when the consumer actually persisted it, lets us spot Kafka lag |
 
 ## Git Workflow
 
