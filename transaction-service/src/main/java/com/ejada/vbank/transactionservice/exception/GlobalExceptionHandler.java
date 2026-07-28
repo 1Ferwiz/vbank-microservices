@@ -7,6 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.ejada.vbank.transactionservice.exception.TransactionAlreadyProcessedException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TransferFailedException.class)
     public ResponseEntity<ErrorResponse> handleTransferFailed(TransferFailedException ex) {
-        return build(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -45,5 +46,9 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message));
+    }
+    @ExceptionHandler(TransactionAlreadyProcessedException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyProcessed(TransactionAlreadyProcessedException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 }

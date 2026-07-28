@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CreateTransferRequest {
+public class InitiateTransferRequest {
 
     @NotNull
     private UUID fromAccountId;
