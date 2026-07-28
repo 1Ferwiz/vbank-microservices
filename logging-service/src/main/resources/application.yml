@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: logging-service
+  datasource:
+    url: jdbc:postgresql://localhost:${DB_PORT:5434}/logs_db
+    username: ${DB_USER:vbank_admin}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  kafka:
+    bootstrap-servers: localhost:${KAFKA_PORT:9094}
+    consumer:
+      group-id: logging-service
+      auto-offset-reset: earliest
+
+server:
+  port: 8084
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+
+logging:
+  level:
+    org.springframework.kafka: DEBUG
+    org.apache.kafka: DEBUG
