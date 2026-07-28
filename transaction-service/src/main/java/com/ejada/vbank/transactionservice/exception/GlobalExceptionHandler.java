@@ -31,7 +31,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        return build(HttpStatus.BAD_REQUEST, INVALID_TRANSFER_INPUT_MESSAGE);
+        String errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(java.util.stream.Collectors.joining(", "));
+        return build(HttpStatus.BAD_REQUEST, "Validation failed: " + errors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

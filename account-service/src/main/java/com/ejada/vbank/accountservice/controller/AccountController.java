@@ -3,6 +3,7 @@ package com.ejada.vbank.accountservice.controller;
 import com.ejada.vbank.accountservice.dto.AccountResponse;
 import com.ejada.vbank.accountservice.dto.CreateAccountRequest;
 import com.ejada.vbank.accountservice.dto.CreateAccountResponse;
+import com.ejada.vbank.accountservice.dto.TransferRequest;
 import com.ejada.vbank.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -36,5 +37,11 @@ public class AccountController {
     @GetMapping("/users/{userId}/accounts")
     public ResponseEntity<List<AccountResponse>> getAccountsByUserId(@PathVariable UUID userId) {
         return ResponseEntity.ok(accountService.getAccountsByUserId(userId));
+    }
+
+    @PutMapping("/accounts/transfer")
+    public ResponseEntity<Void> transfer(@Valid @RequestBody TransferRequest request) {
+        accountService.transfer(request);
+        return ResponseEntity.ok().build();
     }
 }

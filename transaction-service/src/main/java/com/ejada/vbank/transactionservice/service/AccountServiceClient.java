@@ -41,8 +41,18 @@ public class AccountServiceClient {
         } catch (RestClientResponseException ex) {
             // Account Service responded, but rejected the transfer (e.g. insufficient funds,
             // inactive account, account not found).
+            com.ejada.vbank.transactionservice.dto.ErrorResponse errorResponse = null;
+            try {
+                errorResponse = ex.getResponseBodyAs(com.ejada.vbank.transactionservice.dto.ErrorResponse.class);
+            } catch (Exception e) {
+                // Ignore parsing errors
+            }
+            String message = (errorResponse != null && errorResponse.getMessage() != null)
+                    ? errorResponse.getMessage()
+                    : ex.getStatusText();
+
             throw new TransferFailedException(
-                    "Account Service rejected the transfer: " + ex.getStatusText());
+                    "Account Service rejected the transfer: " + message);
         } catch (RestClientException ex) {
             // Account Service unreachable (network error, timeout, service down).
             throw new TransferFailedException(

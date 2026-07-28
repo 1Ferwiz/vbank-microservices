@@ -3,12 +3,17 @@ package com.ejada.vbank.accountservice.service;
 import com.ejada.vbank.accountservice.dto.AccountResponse;
 import com.ejada.vbank.accountservice.dto.CreateAccountRequest;
 import com.ejada.vbank.accountservice.dto.CreateAccountResponse;
+import com.ejada.vbank.accountservice.dto.TransferRequest;
 import com.ejada.vbank.accountservice.entity.Account;
 import com.ejada.vbank.accountservice.entity.AccountStatus;
+import com.ejada.vbank.accountservice.exception.InactiveAccountException;
+import com.ejada.vbank.accountservice.exception.InsufficientFundsException;
 import com.ejada.vbank.accountservice.exception.ResourceNotFoundException;
 import com.ejada.vbank.accountservice.repository.AccountRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,6 +72,42 @@ public class AccountService {
         return accounts.stream()
                 .map(this::toAccountResponse)
                 .toList();
+    }
+
+    @Transactional
+    public void transfer(TransferRequest request) {
+        Account from = accountRepository.findById(request.getFromAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Source account with ID " + request.getFromAccountId() + " not found."));
+
+        Account to = accountRepository.findById(request.getToAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Destination account with ID " + request.getToAccountId() + " not found."));
+
+        if (from.getStatus() != AccountStatus.ACTIVE) {
+            throw new InactiveAccountException(
+                    "Source account " + from.getId() + " is not active.");
+        }
+        if (to.getStatus() != AccountStatus.ACTIVE) {
+            throw new InactiveAccountException(
+                    "Destination account " + to.getId() + " is not active.");
+        }
+
+        if (from.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new InsufficientFundsException(
+                    "Insufficient funds in account " + from.getId()
+                            + ". Available: " + from.getBalance()
+                            + ", requested: " + request.getAmount() + ".");
+        }
+
+        from.setBalance(from.getBalance().subtract(request.getAmount()));
+        from.setLastActivityAt(LocalDateTime.now());
+
+        to.setBalance(to.getBalance().add(request.getAmount()));
+        to.setLastActivityAt(LocalDateTime.now());
+
+        accountRepository.saveAndFlush(from);
+        accountRepository.saveAndFlush(to);
     }
 
     private String generateUniqueAccountNumber() {

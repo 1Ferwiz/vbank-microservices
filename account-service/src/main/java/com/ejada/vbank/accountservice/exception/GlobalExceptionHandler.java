@@ -19,9 +19,27 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientFunds(InsufficientFundsException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(InactiveAccountException.class)
+    public ResponseEntity<ErrorResponse> handleInactiveAccount(InactiveAccountException ex) {
+        return build(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        return build(HttpStatus.BAD_REQUEST, INVALID_ACCOUNT_INPUT_MESSAGE);
+        String errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(java.util.stream.Collectors.joining(", "));
+        return build(HttpStatus.BAD_REQUEST, "Validation failed: " + errors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -33,4 +51,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message));
     }
-}
+}
