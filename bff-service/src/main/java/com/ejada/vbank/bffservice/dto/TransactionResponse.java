@@ -15,10 +15,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TransactionResponse {
     private UUID transactionId;
-    private UUID fromAccountId;
     private UUID toAccountId;
     private BigDecimal amount;
     private String description;
-    private String status;
-    private LocalDateTime createdAt;
+    private LocalDateTime timestamp;
 }
