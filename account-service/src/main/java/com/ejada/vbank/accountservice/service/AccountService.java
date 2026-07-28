@@ -71,6 +71,13 @@ public class AccountService {
                 .toList();
     }
 
+    public void inactivateStaleAccounts() {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        List<Account> staleAccounts =
+                accountRepository.findByStatusAndLastActivityAtBefore(AccountStatus.ACTIVE, cutoff);
+        staleAccounts.forEach(account -> account.setStatus(AccountStatus.INACTIVE));
+        accountRepository.saveAll(staleAccounts);
+    }
     @Transactional
     public TransferResponse transfer(TransferRequest request) {
         Account from = accountRepository.findById(request.getFromAccountId())
