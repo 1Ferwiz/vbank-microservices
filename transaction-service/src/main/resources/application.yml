@@ -9,6 +9,8 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  kafka:
+    bootstrap-servers: localhost:${KAFKA_PORT:9094}
 
 server:
   port: 8083
@@ -21,6 +23,3 @@ management:
     web:
       exposure:
         include: health,info
-
-kafka:
-  bootstrap-servers: localhost:${KAFKA_PORT:9094}
