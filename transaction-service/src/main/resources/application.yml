@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: transaction-service
+  datasource:
+    url: jdbc:postgresql://localhost:${DB_PORT:5434}/transactions_db
+    username: ${DB_USER:vbank_admin}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8083
+
+account-service:
+  base-url: http://localhost:8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

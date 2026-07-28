@@ -295,7 +295,7 @@ Each table below is generated automatically by Hibernate from its entity (`ddl-a
 *(to be filled in once services are assigned)*
 
 - **User Service:** ✅ Done — entity, repository, DTOs, service layer, controller, global exception handler, all endpoints tested in Postman (register, login, get-by-id, validation, duplicate, wrong-password cases)
-- **Account Service:** _unassigned_
+- - **Account Service:** 🔶 In progress — entity, repository, DTOs, service layer (create/get-by-id/get-by-user), exception handler, and controller done for 3 of 4 endpoints. **`PUT /accounts/transfer` (balance update) still pending** — this is what Transaction Service will call for debit/credit during transfer execution. Not yet tested in Postman, not yet merged to `main`.
 - **Transaction Service:** _unassigned_
 - **BFF Service:** _unassigned_
 - **Logging Service:** _unassigned_

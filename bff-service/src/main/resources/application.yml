@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: bff-service
+
+server:
+  port: 8080
+
+microservices:
+  user-service:
+    url: http://localhost:8081
+  account-service:
+    url: http://localhost:8082
+  transaction-service:
+    url: http://localhost:8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
