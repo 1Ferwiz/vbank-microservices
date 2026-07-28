@@ -36,10 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(java.util.stream.Collectors.joining(", "));
-        return build(HttpStatus.BAD_REQUEST, "Validation failed: " + errors);
+        return build(HttpStatus.BAD_REQUEST, INVALID_ACCOUNT_INPUT_MESSAGE);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -51,4 +48,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message));
     }
-}
+}

@@ -1,9 +1,6 @@
 package com.ejada.vbank.accountservice.service;
 
-import com.ejada.vbank.accountservice.dto.AccountResponse;
-import com.ejada.vbank.accountservice.dto.CreateAccountRequest;
-import com.ejada.vbank.accountservice.dto.CreateAccountResponse;
-import com.ejada.vbank.accountservice.dto.TransferRequest;
+import com.ejada.vbank.accountservice.dto.*;
 import com.ejada.vbank.accountservice.entity.Account;
 import com.ejada.vbank.accountservice.entity.AccountStatus;
 import com.ejada.vbank.accountservice.exception.InactiveAccountException;
@@ -75,7 +72,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void transfer(TransferRequest request) {
+    public TransferResponse transfer(TransferRequest request) {
         Account from = accountRepository.findById(request.getFromAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Source account with ID " + request.getFromAccountId() + " not found."));
@@ -108,6 +105,7 @@ public class AccountService {
 
         accountRepository.saveAndFlush(from);
         accountRepository.saveAndFlush(to);
+        return new TransferResponse("Account updated successfully.");
     }
 
     private String generateUniqueAccountNumber() {

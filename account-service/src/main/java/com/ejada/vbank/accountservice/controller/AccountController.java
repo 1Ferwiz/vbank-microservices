@@ -1,9 +1,6 @@
 package com.ejada.vbank.accountservice.controller;
 
-import com.ejada.vbank.accountservice.dto.AccountResponse;
-import com.ejada.vbank.accountservice.dto.CreateAccountRequest;
-import com.ejada.vbank.accountservice.dto.CreateAccountResponse;
-import com.ejada.vbank.accountservice.dto.TransferRequest;
+import com.ejada.vbank.accountservice.dto.*;
 import com.ejada.vbank.accountservice.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,8 +37,8 @@ public class AccountController {
     }
 
     @PutMapping("/accounts/transfer")
-    public ResponseEntity<Void> transfer(@Valid @RequestBody TransferRequest request) {
-        accountService.transfer(request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest request) {
+        return ResponseEntity.ok(accountService.transfer(request));
     }
+
 }
