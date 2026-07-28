@@ -1,10 +1,11 @@
 package com.ejada.vbank.transactionservice.controller;
 
-import com.ejada.vbank.transactionservice.dto.CreateTransferRequest;
+import com.ejada.vbank.transactionservice.dto.ExecuteTransferRequest;
+import com.ejada.vbank.transactionservice.dto.InitiateTransferRequest;
 import com.ejada.vbank.transactionservice.dto.TransactionResponse;
+import com.ejada.vbank.transactionservice.dto.TransferResponse;
 import com.ejada.vbank.transactionservice.service.TransactionService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,16 +21,16 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping("/transactions/transfer")
-    public ResponseEntity<TransactionResponse> transfer(
-            @Valid @RequestBody CreateTransferRequest request) {
-        TransactionResponse response = transactionService.transfer(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PostMapping("/transactions/transfer/initiation")
+    public ResponseEntity<TransferResponse> initiateTransfer(
+            @Valid @RequestBody InitiateTransferRequest request) {
+        return ResponseEntity.ok(transactionService.initiateTransfer(request));
     }
 
-    @GetMapping("/transactions/{transactionId}")
-    public ResponseEntity<TransactionResponse> getTransactionById(@PathVariable UUID transactionId) {
-        return ResponseEntity.ok(transactionService.getTransactionById(transactionId));
+    @PostMapping("/transactions/transfer/execution")
+    public ResponseEntity<TransferResponse> executeTransfer(
+            @Valid @RequestBody ExecuteTransferRequest request) {
+        return ResponseEntity.ok(transactionService.executeTransfer(request));
     }
 
     @GetMapping("/accounts/{accountId}/transactions")
