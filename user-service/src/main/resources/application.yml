@@ -1,6 +1,9 @@
 spring:
   application:
     name: user-service
+
+  kafka:
+    bootstrap-servers: localhost:${KAFKA_PORT:9094}
   datasource:
     url: jdbc:postgresql://localhost:${DB_PORT:5434}/users_db
     username: ${DB_USER:vbank_admin}

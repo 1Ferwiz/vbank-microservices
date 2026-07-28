@@ -13,4 +13,5 @@ $env:DB_PORT = $env:POSTGRES_PORT
 $env:DB_USER = $env:POSTGRES_USER
 $env:DB_PASSWORD = $env:POSTGRES_PASSWORD
 
+.\mvnw.cmd -pl $Module -am install -DskipTests
 .\mvnw.cmd -pl $Module spring-boot:run

@@ -21,3 +21,6 @@ management:
     web:
       exposure:
         include: health,info
+
+kafka:
+  bootstrap-servers: localhost:${KAFKA_PORT:9094}
