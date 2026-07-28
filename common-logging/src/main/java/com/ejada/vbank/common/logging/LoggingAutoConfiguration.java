@@ -27,12 +27,10 @@ public class LoggingAutoConfiguration {
         ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(props);
         return new KafkaTemplate<>(producerFactory);
     }
-
     @Bean
     public RequestResponseLoggingFilter requestResponseLoggingFilter(
             KafkaTemplate<String, String> loggingKafkaTemplate,
-            ObjectMapper objectMapper,
             @Value("${vbank.logging.kafka.topic:vbank-logs}") String topic) {
-        return new RequestResponseLoggingFilter(loggingKafkaTemplate, objectMapper, topic);
+        return new RequestResponseLoggingFilter(loggingKafkaTemplate, topic);
     }
 }

@@ -15,16 +15,15 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 public class RequestResponseLoggingFilter extends OncePerRequestFilter {
+
     private static final int MAX_CACHED_BODY_BYTES = 65536; // 64 KB — plenty for JSON API payloads in this project
+
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final String topic;
 
-    public RequestResponseLoggingFilter(KafkaTemplate<String, String> kafkaTemplate,
-                                        ObjectMapper objectMapper,
-                                        String topic) {
+    public RequestResponseLoggingFilter(KafkaTemplate<String, String> kafkaTemplate, String topic) {
         this.kafkaTemplate = kafkaTemplate;
-        this.objectMapper = objectMapper;
         this.topic = topic;
     }
 
