@@ -18,5 +18,6 @@ public class TransactionResponse {
     private UUID toAccountId;
     private BigDecimal amount;
     private String description;
+    private String status;
     private LocalDateTime timestamp;
 }
