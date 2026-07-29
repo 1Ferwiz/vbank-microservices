@@ -102,6 +102,7 @@ public class TransactionService {
                 transaction.getToAccountId(),
                 transaction.getAmount(),
                 transaction.getDescription(),
+                transaction.getStatus(),
                 transaction.getCreatedAt()
         );
     }
