@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: Login API
+  version: 1.0.0
+  description: API to authenticate user in VBank
+paths:
+  /users/login:
+    post:
+      summary: Login User
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: ahmed
+                password:
+                  type: string
+                  example: SecurePass123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                    example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                  username:
+                    type: string
+                    example: ahmed

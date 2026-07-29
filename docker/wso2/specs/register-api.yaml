@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: Register API
+  version: 1.0.0
+  description: API to register a new user in VBank
+paths:
+  /users/register:
+    post:
+      summary: Register User
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+                - firstName
+                - lastName
+              properties:
+                username:
+                  type: string
+                  example: ahmed
+                email:
+                  type: string
+                  example: ahmed@ejada.com
+                password:
+                  type: string
+                  example: SecurePass123
+                firstName:
+                  type: string
+                  example: Ahmed
+                lastName:
+                  type: string
+                  example: Test
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                    example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                  username:
+                    type: string
+                    example: ahmed
+                  message:
+                    type: string
+                    example: User registered successfully

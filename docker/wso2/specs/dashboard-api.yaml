@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Dashboard API
+  version: 1.0.0
+  description: BFF Dashboard API for VBank Microservices
+paths:
+  /bff/dashboard/{userId}:
+    get:
+      summary: Get User Dashboard
+      operationId: getDashboard
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: UUID of the user
+          schema:
+            type: string
+            format: uuid
+            example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      responses:
+        '200':
+          description: Dashboard details

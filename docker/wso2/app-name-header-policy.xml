@@ -1,0 +1,46 @@
+<sequence xmlns="http://ws.apache.org/ns/synapse" name="app-name-header-policy">
+    <!--
+        Custom Mediation Policy for VBank Microservices
+        ================================================
+        Extracts the subscribing application name from the OAuth2 authentication context
+        and maps it to the APP-NAME transport header sent to backend services.
+        
+        Mapping:
+          - "vbank portal" application  -> APP-NAME: PORTAL
+          - "vbank mobile" application  -> APP-NAME: MOBILE
+          - Any other application       -> APP-NAME: UNKNOWN
+          
+        WSO2 automatically sets the property 'api.ut.application.name' when an 
+        OAuth2 token is validated against a subscribing application.
+    -->
+    
+    <!-- Read the application name from the authentication context -->
+    <property name="appName" 
+              expression="$ctx:api.ut.application.name" 
+              scope="default" 
+              type="STRING"/>
+    
+    <!-- Map application name to the corresponding APP-NAME header value -->
+    <filter regex="vbank portal" source="get-property('appName')">
+        <then>
+            <header name="APP-NAME" scope="transport" value="PORTAL"/>
+        </then>
+        <else>
+            <filter regex="vbank mobile" source="get-property('appName')">
+                <then>
+                    <header name="APP-NAME" scope="transport" value="MOBILE"/>
+                </then>
+                <else>
+                    <header name="APP-NAME" scope="transport" value="UNKNOWN"/>
+                </else>
+            </filter>
+        </else>
+    </filter>
+    
+    <!-- Debug logging (remove in production) -->
+    <log level="custom">
+        <property name="VBank-Mediation" value="APP-NAME header injection"/>
+        <property name="APP-NAME" expression="$trp:APP-NAME"/>
+        <property name="SourceApplication" expression="get-property('appName')"/>
+    </log>
+</sequence>

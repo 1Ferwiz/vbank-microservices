@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: Transactions API
+  version: 1.0.0
+  description: Transfer initiation and execution APIs for VBank Microservices
+paths:
+  /transactions/transfer/initiation:
+    post:
+      summary: Initiate Transfer
+      operationId: initiateTransfer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fromAccountId
+                - toAccountId
+                - amount
+              properties:
+                fromAccountId:
+                  type: string
+                  format: uuid
+                  example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                toAccountId:
+                  type: string
+                  format: uuid
+                  example: 4fa85f64-5717-4562-b3fc-2c963f66afa7
+                amount:
+                  type: number
+                  example: 100.00
+      responses:
+        '200':
+          description: Transfer initiated
+  /transactions/transfer/execution:
+    post:
+      summary: Execute Transfer
+      operationId: executeTransfer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - transferId
+              properties:
+                transferId:
+                  type: string
+                  format: uuid
+                  example: 5fa85f64-5717-4562-b3fc-2c963f66afa8
+      responses:
+        '200':
+          description: Transfer executed
