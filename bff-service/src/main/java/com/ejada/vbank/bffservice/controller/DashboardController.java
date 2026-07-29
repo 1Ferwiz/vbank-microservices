@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -22,8 +21,7 @@ public class DashboardController {
     }
 
     @GetMapping("/dashboard/{userId}")
-    public Mono<ResponseEntity<DashboardResponse>> getDashboard(@PathVariable UUID userId) {
-        return dashboardService.getDashboard(userId)
-                .map(ResponseEntity::ok);
+    public ResponseEntity<DashboardResponse> getDashboard(@PathVariable UUID userId) {
+        return ResponseEntity.ok(dashboardService.getDashboard(userId));
     }
 }

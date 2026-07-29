@@ -24,7 +24,7 @@ public class DashboardService {
         this.transactionServiceClient = transactionServiceClient;
     }
 
-    public Mono<DashboardResponse> getDashboard(UUID userId) {
+    public DashboardResponse getDashboard(UUID userId) {
         Mono<UserProfileResponse> userProfileMono = userServiceClient.get()
                 .uri("/users/{userId}/profile", userId)
                 .retrieve()
@@ -65,6 +65,11 @@ public class DashboardService {
                             profile.getLastName(),
                             accounts
                     );
-                });
+                })
+                .block(); // Blocking is intentional: bff-service runs on the Servlet stack, not a
+        // true reactive server (see pom.xml), so there is no benefit to staying
+        // reactive past this point — and returning Mono from the controller was
+        // triggering Spring MVC's async-dispatch path, which broke the shared
+        // request/response logging filter's ability to read the response body.
     }
 }
