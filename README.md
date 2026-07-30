@@ -37,6 +37,7 @@ Every service is independent and owns its own database (database-per-service pat
 | Containerization | Docker Desktop / Docker Compose |
 | IDE | IntelliJ IDEA Ultimate |
 
+
 ## Prerequisites
 
 Before doing anything, confirm you have:
@@ -101,10 +102,10 @@ vbank-microservices/
 ├── run-service.ps1                ← run any service with correct local env vars
 ├── .env.example / .env            ← local Postgres credentials (.env is gitignored)
 ├── user-service/
-├── account-service/                (to be built)
-├── transaction-service/            (to be built)
-├── bff-service/                    (to be built)
-└── logging-service/                (to be built)
+├── account-service/                
+├── transaction-service/           
+├── bff-service/                   
+└── logging-service/               
 ```
 
 ### Package structure inside every service (the template — follow this exactly in every new module)
@@ -150,7 +151,7 @@ Since schema is generated from entities (`ddl-auto: update`), the entity is alwa
 | created_at | TIMESTAMP | NOT NULL |
 | updated_at | TIMESTAMP | NOT NULL |
 
-### `accounts_db.accounts` — suggested, not yet built
+### `accounts_db.accounts` — Impelementd
 
 | Column | Type | Constraints |
 |---|---|---|
@@ -164,7 +165,7 @@ Since schema is generated from entities (`ddl-auto: update`), the entity is alwa
 | created_at | TIMESTAMP | NOT NULL |
 | updated_at | TIMESTAMP | NOT NULL |
 
-### `transactions_db.transactions` — suggested, not yet built
+### `transactions_db.transactions` — Implemented
 
 | Column | Type | Constraints |
 |---|---|---|
@@ -177,7 +178,7 @@ Since schema is generated from entities (`ddl-auto: update`), the entity is alwa
 | created_at | TIMESTAMP | NOT NULL |
 | updated_at | TIMESTAMP | NOT NULL — changes when status flips |
 
-### `logs_db.log_dump` — suggested, not yet built
+### `logs_db.log_dump` — Implemented
 
 | Column | Type | Constraints |
 |---|---|---|
@@ -211,7 +212,7 @@ Each table below is generated automatically by Hibernate from its entity (`ddl-a
 | created_at | TIMESTAMP | NOT NULL |
 | updated_at | TIMESTAMP | NOT NULL |
 
-### `accounts_db.accounts` — suggested
+### `accounts_db.accounts` — implemented
 
 | Column | Type | Constraints |
 |---|---|---|
@@ -256,7 +257,7 @@ Each table below is generated automatically by Hibernate from its entity (`ddl-a
 - The other teammate reviews and approves before merging.
 - Keep commits scoped and descriptive — one logical change per commit, same style used throughout `user-service`'s history (check `git log` there for examples).
 
-## How to Add a New Microservice (mirrors exactly how `user-service` was built)
+## How to Add a New Microservice
 
 1. **File → New → Module → Spring Boot**, inside the already-open project.
    - Group: `com.ejada.vbank`, Artifact: `<service-name>`, Package: `com.ejada.vbank.<servicename>`
@@ -292,10 +293,9 @@ Each table below is generated automatically by Hibernate from its entity (`ddl-a
 
 ## Team Ownership
 
-*(to be filled in once services are assigned)*
 
 - **User Service:** ✅ Done — entity, repository, DTOs, service layer, controller, global exception handler, all endpoints tested in Postman (register, login, get-by-id, validation, duplicate, wrong-password cases)
-- - **Account Service:** 🔶 In progress — entity, repository, DTOs, service layer (create/get-by-id/get-by-user), exception handler, and controller done for 3 of 4 endpoints. **`PUT /accounts/transfer` (balance update) still pending** — this is what Transaction Service will call for debit/credit during transfer execution. Not yet tested in Postman, not yet merged to `main`.
-- **Transaction Service:** _unassigned_
-- **BFF Service:** _unassigned_
-- **Logging Service:** _unassigned_
+- - **Account Service:** Done-  entity, repository, DTOs, service layer (create/get-by-id/get-by-user), exception handler, and controller done for 3 of 4 endpoints. **`PUT /accounts/transfer` (balance update) still pending** — this is what Transaction Service will call for debit/credit during transfer execution. Not yet tested in Postman, not yet merged to `main`.
+- **Transaction Service:** Done
+- **BFF Service:** Done
+- **Logging Service:** Done
